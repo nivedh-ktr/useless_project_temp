@@ -49,14 +49,14 @@ start index.html
 
 **Screenshots**
 
-![Screenshot1](docs/start_screen.png) 
+![Screenshot1](docs/start_screen.jpg) 
 *The welcoming Start Screen masking the impending doom.*
 
 ![Screenshot2](docs/gameplay.png) 
 *Navigating the impossibly thin walls with an inverted cursor.*
 
-![Screenshot3](docs/bsod.png) 
-*The fake Windows BSOD that triggers when the player tries to cheat the maze.*
+![Screenshot3](docs/fail_screen.jpg) 
+*The failure modal displaying a Malayalam quote upon crashing into a wall.*
 
 **Diagrams**
 ![Workflow](docs/workflow.png) 
