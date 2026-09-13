@@ -255,17 +255,17 @@
        ═══════════════════════════════════════════════ */
     const COLS  = 34;
     const ROWS  = 26;
-    const CELL  = 24;                    // size of a passage
+    const CELL  = 32;                    // size of a passage
     const WALL_W= 2;                     // thickness of walls (pixels)
-    const MAZE_W = COLS * CELL;          // 680
-    const MAZE_H = ROWS * CELL;          // 520
+    const MAZE_W = COLS * CELL;          // dynamically calculated
+    const MAZE_H = ROWS * CELL;          // dynamically calculated
     const MARGIN = 140;                  // massive margin for the secret path
     const CW = MAZE_W + MARGIN * 2;
     const CH = MAZE_H + MARGIN * 2;
     const MX = MARGIN;
     const MY = MARGIN;
     const HITBOX_R = 2;                  // micro-size collision core
-    const DRAW_SCALE = 6;                // visual scale for Tom
+    const DRAW_SCALE = 8;                // visual scale for Tom
     
     // Grid where each cell has {n, e, s, w} booleans indicating a wall
     let grid = [];
@@ -554,7 +554,7 @@
 
         // Check Outer Border Walls (except gates)
         // Top Border (left of gate)
-        if (circleRect(x,y,r, MX - WALL_W, MY - WALL_W, CELL, WALL_W)) return true;
+        if (circleRect(x,y,r, MX - WALL_W, MY - WALL_W, WALL_W, WALL_W)) return true;
         // Top Border (right of gate)
         if (circleRect(x,y,r, MX + CELL, MY - WALL_W, MAZE_W - CELL + WALL_W, WALL_W)) return true;
         // Bottom Border (left of gate)
