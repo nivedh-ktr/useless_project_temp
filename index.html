@@ -255,7 +255,7 @@
        ═══════════════════════════════════════════════ */
     const COLS  = 34;
     const ROWS  = 26;
-    const CELL  = 20;                    // size of a passage
+    const CELL  = 24;                    // size of a passage
     const WALL_W= 2;                     // thickness of walls (pixels)
     const MAZE_W = COLS * CELL;          // 680
     const MAZE_H = ROWS * CELL;          // 520
@@ -275,7 +275,7 @@
         for (let r = 0; r < ROWS; r++) {
             let row = [];
             for (let c = 0; c < COLS; c++) {
-                row.push({ n: true, e: true, s: true, w: true, visited: false });
+                row.push({ n: true, e: true, s: true, w: true, visited: false, parent: null, comp: null });
             }
             grid.push(row);
         }
@@ -300,29 +300,70 @@
                 if (next.dir === 's') { grid[r][c].s = false; grid[next.r][next.c].n = false; }
                 if (next.dir === 'w') { grid[r][c].w = false; grid[next.r][next.c].e = false; }
                 if (next.dir === 'e') { grid[r][c].e = false; grid[next.r][next.c].w = false; }
+                
                 grid[next.r][next.c].visited = true;
+                grid[next.r][next.c].parent = {r, c, dir: next.dir}; // Track path for organic trap
+                
                 stack.push({r: next.r, c: next.c});
             } else {
                 stack.pop();
             }
         }
 
-        // Remove random internal walls to create massive loops and density
-        for(let i=0; i<150; i++) {
-            const r = Math.floor(Math.random() * (ROWS - 2)) + 1;
-            const c = Math.floor(Math.random() * (COLS - 2)) + 1;
-            if (Math.random() > 0.5) {
-                grid[r][c].n = false; grid[r-1][c].s = false;
-            } else {
-                grid[r][c].e = false; grid[r][c+1].w = false;
+        // THE ORGANIC TRAP: Find the solution path and seal it off exactly once
+        const path = [];
+        let curr = {r: ROWS-1, c: COLS-1};
+        while (curr.r !== 0 || curr.c !== 0) {
+            path.push(curr);
+            curr = grid[curr.r][curr.c].parent;
+        }
+        path.push({r: 0, c: 0});
+        
+        // Pick a wall exactly in the middle of the path and SEAL it
+        const midIdx = Math.floor(path.length / 2);
+        const cellA = path[midIdx];
+        const cellB = path[midIdx - 1];
+        
+        if (cellA.r === cellB.r + 1) { grid[cellA.r][cellA.c].n = true; grid[cellB.r][cellB.c].s = true; }
+        else if (cellA.r === cellB.r - 1) { grid[cellA.r][cellA.c].s = true; grid[cellB.r][cellB.c].n = true; }
+        else if (cellA.c === cellB.c + 1) { grid[cellA.r][cellA.c].w = true; grid[cellB.r][cellB.c].e = true; }
+        else if (cellA.c === cellB.c - 1) { grid[cellA.r][cellA.c].e = true; grid[cellB.r][cellB.c].w = true; }
+
+        // Component Labeling via BFS from Start
+        const compStack = [{r: 0, c: 0}];
+        grid[0][0].comp = 'A';
+        while(compStack.length > 0) {
+            const {r, c} = compStack.pop();
+            const g = grid[r][c];
+            if (!g.n && r > 0 && grid[r-1][c].comp !== 'A') { grid[r-1][c].comp = 'A'; compStack.push({r: r-1, c}); }
+            if (!g.s && r < ROWS-1 && grid[r+1][c].comp !== 'A') { grid[r+1][c].comp = 'A'; compStack.push({r: r+1, c}); }
+            if (!g.w && c > 0 && grid[r][c-1].comp !== 'A') { grid[r][c-1].comp = 'A'; compStack.push({r: r, c-1}); }
+            if (!g.e && c < COLS-1 && grid[r][c+1].comp !== 'A') { grid[r][c+1].comp = 'A'; compStack.push({r: r, c+1}); }
+        }
+        
+        // Label all non-A as B
+        for (let r = 0; r < ROWS; r++) {
+            for (let c = 0; c < COLS; c++) {
+                if (grid[r][c].comp !== 'A') grid[r][c].comp = 'B';
             }
         }
 
-        // THE TRAP: Create a solid, impassable horizontal wall across the middle
-        const midRow = Math.floor(ROWS / 2);
-        for(let c = 0; c < COLS; c++) {
-            grid[midRow][c].s = true;
-            grid[midRow+1][c].n = true;
+        // Remove random internal walls to create massive loops, respecting components!
+        for(let i=0; i<150; i++) {
+            const r = Math.floor(Math.random() * (ROWS - 2)) + 1;
+            const c = Math.floor(Math.random() * (COLS - 2)) + 1;
+            
+            if (Math.random() > 0.5) {
+                // Try remove north wall
+                if (grid[r][c].comp === grid[r-1][c].comp) {
+                    grid[r][c].n = false; grid[r-1][c].s = false;
+                }
+            } else {
+                // Try remove east wall
+                if (grid[r][c].comp === grid[r][c+1].comp) {
+                    grid[r][c].e = false; grid[r][c+1].w = false;
+                }
+            }
         }
 
         // Open Start (Top-Left) and End (Bottom-Right)
@@ -639,6 +680,9 @@
     /* ═══════════════════════════════════════════════
        RENDER & LOOP
        ═══════════════════════════════════════════════ */
+    let pendingDx = 0;
+    let pendingDy = 0;
+
     function render() {
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, CW, CH);
@@ -650,7 +694,14 @@
 
     function loop() {
         requestAnimationFrame(loop);
-        if (state === "playing" || state === "menu") {
+        if (state === "playing") {
+            if (pendingDx !== 0 || pendingDy !== 0) {
+                movePlayer(pendingDx, pendingDy);
+                pendingDx = 0;
+                pendingDy = 0;
+            }
+            render();
+        } else if (state === "menu") {
             render();
         }
     }
@@ -662,11 +713,9 @@
         if (state !== "playing") return;
         
         const scale = canvas.clientWidth / canvas.width || 1;
-        // Invert X and Y purely mathematically
-        const dx = -e.movementX / scale;
-        const dy = -e.movementY / scale;
-        
-        movePlayer(dx, dy);
+        // Invert X and Y purely mathematically, buffer it for the physics loop
+        pendingDx -= e.movementX / scale;
+        pendingDy -= e.movementY / scale;
     });
 
     document.addEventListener("pointerlockchange", () => {
