@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Impossible Troll Maze</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Noto+Sans+Malayalam:wght@400;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -48,7 +48,7 @@
             pointer-events: none;
             background: #FFF;
             padding: 5px 20px;
-            border: 1px solid #000;
+            border: 2px solid #000;
         }
         #hud.visible { display: flex; }
         .hud-item {
@@ -131,23 +131,24 @@
             text-transform: uppercase;
         }
         .malayalam-quote {
+            font-family: 'Noto Sans Malayalam', sans-serif;
             font-size: 22px;
             font-weight: 700;
             color: #000;
             margin-bottom: 30px;
-            font-style: italic;
-            line-height: 1.4;
+            line-height: 1.6;
         }
         .quote-author {
             display: block;
+            font-family: 'Courier Prime', monospace;
             font-size: 14px;
             color: #666;
             margin-top: 10px;
             font-weight: normal;
         }
 
-        /* ─── FAKE WIN / REAL WIN ─── */
-        #fake-win, #real-win {
+        /* ─── FAKE WIN ─── */
+        #fake-win {
             position: fixed; inset: 0;
             display: none;
             flex-direction: column;
@@ -157,7 +158,7 @@
             z-index: 90;
             text-align: center;
         }
-        #fake-win.visible, #real-win.visible { display: flex; }
+        #fake-win.visible { display: flex; }
         .win-title {
             font-size: 48px;
             font-weight: 700;
@@ -169,7 +170,35 @@
             color: #333;
         }
 
-        /* ─── SHAKE ANIMATION ─── */
+        /* ─── BSOD TRAP ─── */
+        #bsod {
+            position: fixed; inset: 0;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            background: #0000AA;
+            color: #FFF;
+            font-family: 'Courier Prime', monospace;
+            padding: 10vw;
+            z-index: 1000;
+        }
+        #bsod.visible { display: flex; }
+        #bsod h1 { 
+            font-size: 24px; 
+            background: #FFF; 
+            color: #0000AA; 
+            padding: 2px 10px; 
+            display: inline-block; 
+            margin-bottom: 20px;
+        }
+        #bsod p { 
+            font-size: 20px; 
+            line-height: 1.5; 
+            margin-bottom: 20px; 
+        }
+
+        /* ─── ANIMATIONS ─── */
         @keyframes shake {
             0% { transform: translate(2px, 2px) rotate(0deg); }
             10% { transform: translate(-2px, -3px) rotate(-1deg); }
@@ -186,6 +215,17 @@
         .shake-active {
             animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
+
+        @keyframes buzz {
+            0% { transform: translate(1px, 1px); }
+            25% { transform: translate(-1px, -1px); }
+            50% { transform: translate(-1px, 1px); }
+            75% { transform: translate(1px, -1px); }
+            100% { transform: translate(1px, 1px); }
+        }
+        .buzz-active {
+            animation: buzz 0.1s infinite;
+        }
     </style>
 </head>
 <body>
@@ -196,6 +236,8 @@
         <div id="hud">
             <div class="hud-item">Level: <span id="levelV">1</span></div>
             <div class="hud-item">Fails: <span id="failsV">0</span></div>
+            <div class="hud-item">Time: <span id="timeV">60</span></div>
+            <div class="hud-item">Score: <span id="scoreV">0</span></div>
         </div>
 
         <!-- Start -->
@@ -210,7 +252,7 @@
             <div class="modal-content">
                 <h2>YOU DIED</h2>
                 <div class="malayalam-quote" id="quoteText">
-                    "Enikku entho oru amali pattiyennu thonnunnu..."
+                    "എനിക്കെന്തോ ഒരു അബദ്ധം പറ്റിയെന്ന് തോന്നുന്നു..."
                     <span class="quote-author">- Salim Kumar</span>
                 </div>
                 <button id="tryAgainBtn" class="btn">TRY AGAIN</button>
@@ -223,12 +265,14 @@
             <div class="win-sub" id="fakeLevelSub">Loading next harder maze...</div>
         </div>
 
-        <!-- Real Win -->
-        <div id="real-win">
-            <div class="win-title">THE MATRIX ESCAPED</div>
-            <div class="win-sub">You bypassed the trap. The maze was rigged from the start.</div>
-            <br>
-            <button class="btn" onclick="location.reload()">PLAY AGAIN</button>
+        <!-- Fake BSOD Trap -->
+        <div id="bsod">
+            <h1>Windows</h1>
+            <p>A fatal exception 0E has occurred at 0028:C0011E36 in VXD VMM(01) + 00010E36. The current application will be terminated.</p>
+            <p>* Victory condition not found.<br>
+               * Matrix integrity compromised.<br>
+               * Infinite loop initiated.</p>
+            <p>Press any key to continue _</p>
         </div>
     </div>
 
@@ -237,17 +281,17 @@
     "use strict";
 
     /* ═══════════════════════════════════════════════
-       MALAYALAM QUOTES
+       MALAYALAM QUOTES (NATIVE FONT)
        ═══════════════════════════════════════════════ */
     const quotes = [
-        { q: "Swabhavikam!", a: "Suraj Venjaramoodu" },
-        { q: "Enikku entho oru amali pattiyennu thonnunnu...", a: "Salim Kumar" },
-        { q: "Ithiri kanji edukkatte... Manikya?", a: "Jagathy Sreekumar" },
-        { q: "Aahaa.. entha monte peru? Ramanan!", a: "Salim Kumar" },
-        { q: "Ethu malayalikkanu sir ee pettu kittiyittullathu?", a: "Salim Kumar" },
-        { q: "Ente shivane... ithu enthinu ente nenjathu thanne potti?", a: "Salim Kumar" },
-        { q: "Kandittu valla padichu paniyum aano?", a: "Salim Kumar" },
-        { q: "Eda, nee aalaake maari poyallo!", a: "Jagathy Sreekumar" }
+        { q: "സ്വാഭാവികം!", a: "Suraj Venjaramoodu" },
+        { q: "എനിക്കെന്തോ ഒരു അബദ്ധം പറ്റിയെന്ന് തോന്നുന്നു...", a: "Salim Kumar" },
+        { q: "ഇത്തിരി കഞ്ഞി എടുക്കട്ടെ... മാണിക്യാ?", a: "Jagathy Sreekumar" },
+        { q: "ആഹാ.. എന്താ മോൻ്റെ പേര്? രമണൻ!", a: "Salim Kumar" },
+        { q: "ഏത് മലയാളിക്കാണ് സാർ ഈ പേര് കിട്ടിയിട്ടുള്ളത്?", a: "Salim Kumar" },
+        { q: "എൻ്റെ ശിവനേ... ഇത് എന്തിനു എൻ്റെ നെഞ്ചത്ത് തന്നെ പൊട്ടി?", a: "Salim Kumar" },
+        { q: "കണ്ടിട്ട് വല്ല പഠിച്ച പണിയും ആണോ?", a: "Salim Kumar" },
+        { q: "എടാ, നീ ആളാകെ മാറി പോയല്ലോ!", a: "Jagathy Sreekumar" }
     ];
 
     /* ═══════════════════════════════════════════════
@@ -257,8 +301,8 @@
     const ROWS  = 26;
     const CELL  = 32;                    // size of a passage
     const WALL_W= 2;                     // thickness of walls (pixels)
-    const MAZE_W = COLS * CELL;          // dynamically calculated
-    const MAZE_H = ROWS * CELL;          // dynamically calculated
+    const MAZE_W = COLS * CELL;          
+    const MAZE_H = ROWS * CELL;          
     const MARGIN = 140;                  // massive margin for the secret path
     const CW = MAZE_W + MARGIN * 2;
     const CH = MAZE_H + MARGIN * 2;
@@ -366,9 +410,15 @@
             }
         }
 
-        // Open Start (Top-Left) and End (Bottom-Right)
+        // Open Start (Top-Left) and MULTIPLE ENTRANCES
         grid[0][0].n = false;
-        grid[ROWS-1][COLS-1].s = false;
+        const numEntrances = 4;
+        for (let i = 0; i < numEntrances; i++) {
+            const randC = Math.floor(Math.random() * (COLS - 2)) + 1;
+            grid[0][randC].n = false;
+        }
+
+        grid[ROWS-1][COLS-1].s = false; // End
     }
 
     // start/end pos
@@ -393,34 +443,97 @@
     const $hud         = document.getElementById("hud");
     const $levelV      = document.getElementById("levelV");
     const $failsV      = document.getElementById("failsV");
+    const $timeV       = document.getElementById("timeV");
+    const $scoreV      = document.getElementById("scoreV");
     const $fakeWin     = document.getElementById("fake-win");
-    const $realWin     = document.getElementById("real-win");
 
     /* ═══════════════════════════════════════════════
        AUDIO
        ═══════════════════════════════════════════════ */
     let ac;
+    let humOsc = null;
+    let humGain = null;
+
     function ensureAudio() {
-        if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+        if (!ac) {
+            ac = new (window.AudioContext || window.webkitAudioContext)();
+            humOsc = ac.createOscillator();
+            humGain = ac.createGain();
+            humOsc.type = 'triangle';
+            humOsc.frequency.value = 55; // Low hum
+            humGain.gain.value = 0;
+            humOsc.connect(humGain);
+            humGain.connect(ac.destination);
+            humOsc.start();
+        }
         if (ac.state === "suspended") ac.resume();
     }
 
-    function playThud() {
-        ensureAudio();
+    function setHum(active) {
+        if (!humGain) return;
+        humGain.gain.setTargetAtTime(active ? 0.4 : 0, ac.currentTime, 0.05);
+    }
+
+    function playTick() {
+        if (!ac) return;
         const t = ac.currentTime;
         const osc = ac.createOscillator();
         const gain = ac.createGain();
         osc.connect(gain);
         gain.connect(ac.destination);
-        
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, t);
+        osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.05);
+        gain.gain.setValueAtTime(0.1, t);
+        gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+        osc.start(t);
+        osc.stop(t + 0.05);
+    }
+
+    function playAlarm() {
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(400, t);
+        osc.frequency.setValueAtTime(600, t + 0.1);
+        osc.frequency.setValueAtTime(400, t + 0.2);
+        gain.gain.setValueAtTime(0.3, t);
+        gain.gain.linearRampToValueAtTime(0, t + 0.5);
+        osc.start(t);
+        osc.stop(t + 0.5);
+    }
+
+    function playBSOD() {
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(100, t);
+        osc.frequency.linearRampToValueAtTime(30, t + 2.0);
+        gain.gain.setValueAtTime(0.8, t);
+        osc.start(t);
+        // Infinite sound
+    }
+
+    function playThud() {
+        if (!ac) return;
+        const t = ac.currentTime;
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        osc.connect(gain);
+        gain.connect(ac.destination);
         osc.type = 'sine';
-        // Rapid pitch drop for a thud/bonk
         osc.frequency.setValueAtTime(150, t);
         osc.frequency.exponentialRampToValueAtTime(0.01, t + 0.3);
-        
         gain.gain.setValueAtTime(1, t);
         gain.gain.exponentialRampToValueAtTime(0.01, t + 0.3);
-        
         osc.start(t);
         osc.stop(t + 0.3);
     }
@@ -428,43 +541,37 @@
     /* ═══════════════════════════════════════════════
        GAME STATE
        ═══════════════════════════════════════════════ */
-    let state     = "menu";     // menu | playing | failed | fakewin | realwin
+    let state     = "menu";     // menu | playing | failed | fakewin | bsod
     let px = SX, py = SY;
     let level     = 1;
     let fails     = 0;
     let hasBeenOnSide = false;
+    
+    let score = 0;
+    let timer = 60.0;
+    let lastTick = 60;
 
     /* ═══════════════════════════════════════════════
        DRAWING HELPERS
        ═══════════════════════════════════════════════ */
-
     function drawMaze() {
         ctx.fillStyle = "#000";
-        // Draw the border box of the maze
-        ctx.fillRect(MX - WALL_W, MY - WALL_W, MAZE_W + WALL_W*2, WALL_W); // Top
-        ctx.fillRect(MX - WALL_W, MY + MAZE_H, MAZE_W + WALL_W*2, WALL_W); // Bottom
-        ctx.fillRect(MX - WALL_W, MY, WALL_W, MAZE_H); // Left
-        ctx.fillRect(MX + MAZE_W, MY, WALL_W, MAZE_H); // Right
-
-        // Erase start and end gates
-        ctx.fillStyle = "#FFF";
-        ctx.fillRect(MX, MY - WALL_W - 1, CELL, WALL_W + 2); // Start gate
-        ctx.fillRect(MX + MAZE_W - CELL, MY + MAZE_H - 1, CELL, WALL_W + 2); // End gate
-
-        // Draw internal walls
-        ctx.fillStyle = "#000";
+        
         for (let r = 0; r < ROWS; r++) {
             for (let c = 0; c < COLS; c++) {
                 const cell = grid[r][c];
                 const cx = MX + c * CELL;
                 const cy = MY + r * CELL;
                 
-                if (cell.n && r > 0) ctx.fillRect(cx, cy - Math.floor(WALL_W/2), CELL, WALL_W);
-                if (cell.w && c > 0) ctx.fillRect(cx - Math.floor(WALL_W/2), cy, WALL_W, CELL);
+                if (cell.n) ctx.fillRect(cx, cy - Math.floor(WALL_W/2), CELL, WALL_W);
+                if (cell.w) ctx.fillRect(cx - Math.floor(WALL_W/2), cy, WALL_W, CELL);
+                
+                // Complete bottom and right edges of the grid
+                if (r === ROWS - 1 && cell.s) ctx.fillRect(cx, cy + CELL - Math.floor(WALL_W/2), CELL, WALL_W);
+                if (c === COLS - 1 && cell.e) ctx.fillRect(cx + CELL - Math.floor(WALL_W/2), cy, WALL_W, CELL);
             }
         }
 
-        // Draw Start and End labels
         ctx.font = "bold 14px 'Courier Prime'";
         ctx.fillStyle = "#000";
         ctx.textAlign = "center";
@@ -472,54 +579,44 @@
         ctx.fillText("▲ END", EX, EY + 25);
     }
 
-    // Custom Tom Sprite
     function drawTom(x, y, s) {
         ctx.save();
         ctx.translate(x, y);
-        // Head
-        ctx.fillStyle = "#708090"; // Slate gray
+        ctx.fillStyle = "#708090";
         ctx.beginPath(); ctx.arc(0, 0, s, 0, Math.PI*2); ctx.fill();
         ctx.strokeStyle = "#2F4F4F"; ctx.lineWidth = 1; ctx.stroke();
         
-        // Ears
         ctx.fillStyle = "#708090";
         ctx.beginPath(); ctx.moveTo(-s*0.6, -s*0.6); ctx.lineTo(-s*0.9, -s*1.4); ctx.lineTo(-s*0.1, -s*0.8); ctx.fill();
         ctx.beginPath(); ctx.moveTo(s*0.6, -s*0.6); ctx.lineTo(s*0.9, -s*1.4); ctx.lineTo(s*0.1, -s*0.8); ctx.fill();
         
-        // Eyes (yellow/greenish)
         ctx.fillStyle = "#EEE8AA";
         ctx.beginPath(); ctx.ellipse(-s*0.35, -s*0.2, s*0.25, s*0.35, 0, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.ellipse(s*0.35, -s*0.2, s*0.25, s*0.35, 0, 0, Math.PI*2); ctx.fill();
         
-        // Pupils
         ctx.fillStyle = "#000";
         ctx.beginPath(); ctx.arc(-s*0.3, -s*0.1, s*0.1, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(s*0.3, -s*0.1, s*0.1, 0, Math.PI*2); ctx.fill();
         
-        // Nose
         ctx.fillStyle = "#000";
         ctx.beginPath(); ctx.arc(0, s*0.2, s*0.15, 0, Math.PI*2); ctx.fill();
         
         ctx.restore();
     }
 
-    // Custom Jerry Sprite
     function drawJerry(x, y, s) {
         ctx.save();
         ctx.translate(x, y);
-        // Big ears
-        ctx.fillStyle = "#8B4513"; // SaddleBrown
+        ctx.fillStyle = "#8B4513";
         ctx.beginPath(); ctx.arc(-s*0.9, -s*0.9, s*0.7, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(s*0.9, -s*0.9, s*0.7, 0, Math.PI*2); ctx.fill();
-        ctx.fillStyle = "#FFB6C1"; // Inner ear
+        ctx.fillStyle = "#FFB6C1";
         ctx.beginPath(); ctx.arc(-s*0.9, -s*0.9, s*0.4, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(s*0.9, -s*0.9, s*0.4, 0, Math.PI*2); ctx.fill();
         
-        // Head
-        ctx.fillStyle = "#A0522D"; // Sienna
+        ctx.fillStyle = "#A0522D";
         ctx.beginPath(); ctx.arc(0, 0, s, 0, Math.PI*2); ctx.fill();
         
-        // Eyes
         ctx.fillStyle = "#FFF";
         ctx.beginPath(); ctx.ellipse(-s*0.3, -s*0.2, s*0.2, s*0.3, 0, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.ellipse(s*0.3, -s*0.2, s*0.2, s*0.3, 0, 0, Math.PI*2); ctx.fill();
@@ -527,19 +624,14 @@
         ctx.beginPath(); ctx.arc(-s*0.25, -s*0.2, s*0.1, 0, Math.PI*2); ctx.fill();
         ctx.beginPath(); ctx.arc(s*0.25, -s*0.2, s*0.1, 0, Math.PI*2); ctx.fill();
         
-        // Nose
         ctx.fillStyle = "#000";
         ctx.beginPath(); ctx.arc(0, s*0.4, s*0.1, 0, Math.PI*2); ctx.fill();
-        
         ctx.restore();
     }
 
     /* ═══════════════════════════════════════════════
        COLLISION & LOGIC
        ═══════════════════════════════════════════════ */
-       
-    // Pixel-perfect image data collision would be overkill and slow.
-    // Instead we check the mathematical bounding boxes of walls near the player.
     function circleRect(cx, cy, cr, rx, ry, rw, rh) {
         const closestX = Math.max(rx, Math.min(cx, rx+rw));
         const closestY = Math.max(ry, Math.min(cy, ry+rh));
@@ -548,30 +640,11 @@
         return (dx*dx + dy*dy) < (cr*cr);
     }
 
-    function checkCollision(x, y) {
-        // Player bounding circle
-        const r = HITBOX_R;
-
-        // Check Outer Border Walls (except gates)
-        // Top Border (left of gate)
-        if (circleRect(x,y,r, MX - WALL_W, MY - WALL_W, WALL_W, WALL_W)) return true;
-        // Top Border (right of gate)
-        if (circleRect(x,y,r, MX + CELL, MY - WALL_W, MAZE_W - CELL + WALL_W, WALL_W)) return true;
-        // Bottom Border (left of gate)
-        if (circleRect(x,y,r, MX - WALL_W, MY + MAZE_H, MAZE_W - CELL + WALL_W, WALL_W)) return true;
-        // Bottom Border (right of gate)
-        if (circleRect(x,y,r, MX + MAZE_W, MY + MAZE_H, WALL_W, WALL_W)) return true;
-        
-        // Left Border
-        if (circleRect(x,y,r, MX - WALL_W, MY, WALL_W, MAZE_H)) return true;
-        // Right Border
-        if (circleRect(x,y,r, MX + MAZE_W, MY, WALL_W, MAZE_H)) return true;
-
-        // Check Grid Walls
-        const c0 = Math.max(0, Math.floor((x - r - MX) / CELL));
-        const c1 = Math.min(COLS - 1, Math.floor((x + r - MX) / CELL));
-        const r0 = Math.max(0, Math.floor((y - r - MY) / CELL));
-        const r1 = Math.min(ROWS - 1, Math.floor((y + r - MY) / CELL));
+    function checkCollisionBase(x, y, radius) {
+        const c0 = Math.max(0, Math.floor((x - radius - MX) / CELL));
+        const c1 = Math.min(COLS - 1, Math.floor((x + radius - MX) / CELL));
+        const r0 = Math.max(0, Math.floor((y - radius - MY) / CELL));
+        const r1 = Math.min(ROWS - 1, Math.floor((y + radius - MY) / CELL));
 
         for (let rr = r0; rr <= r1; rr++) {
             for (let cc = c0; cc <= c1; cc++) {
@@ -579,14 +652,21 @@
                 const cx = MX + cc * CELL;
                 const cy = MY + rr * CELL;
 
-                if (cell.n && rr > 0 && circleRect(x,y,r, cx, cy - Math.floor(WALL_W/2), CELL, WALL_W)) return true;
-                if (cell.s && rr < ROWS-1 && circleRect(x,y,r, cx, cy + CELL - Math.floor(WALL_W/2), CELL, WALL_W)) return true;
-                if (cell.w && cc > 0 && circleRect(x,y,r, cx - Math.floor(WALL_W/2), cy, WALL_W, CELL)) return true;
-                if (cell.e && cc < COLS-1 && circleRect(x,y,r, cx + CELL - Math.floor(WALL_W/2), cy, WALL_W, CELL)) return true;
+                if (cell.n && circleRect(x,y,radius, cx, cy - Math.floor(WALL_W/2), CELL, WALL_W)) return true;
+                if (cell.s && circleRect(x,y,radius, cx, cy + CELL - Math.floor(WALL_W/2), CELL, WALL_W)) return true;
+                if (cell.w && circleRect(x,y,radius, cx - Math.floor(WALL_W/2), cy, WALL_W, CELL)) return true;
+                if (cell.e && circleRect(x,y,radius, cx + CELL - Math.floor(WALL_W/2), cy, WALL_W, CELL)) return true;
             }
         }
-
         return false;
+    }
+
+    function checkCollision(x, y) {
+        return checkCollisionBase(x, y, HITBOX_R);
+    }
+
+    function checkProximity(x, y) {
+        return checkCollisionBase(x, y, HITBOX_R + 3);
     }
 
     function isInsideMaze(x, y) {
@@ -597,46 +677,75 @@
         if (state === "failed") return;
         state = "failed";
         document.exitPointerLock();
+        setHum(false);
         playThud();
         
         const container = document.getElementById("game-container");
+        container.classList.remove("buzz-active");
         container.classList.add("shake-active");
         setTimeout(() => container.classList.remove("shake-active"), 400);
         
         fails++;
         $failsV.textContent = fails;
 
-        // Random Quote
         const q = quotes[Math.floor(Math.random() * quotes.length)];
         $quoteText.innerHTML = `"${q.q}"<span class="quote-author">- ${q.a}</span>`;
 
         $failModal.classList.add("visible");
     }
 
-    function movePlayer(dx, dy) {
+    function processMovementStep(dx, dy) {
         let nx = px + dx;
         let ny = py + dy;
 
-        // Keep inside canvas
         nx = Math.max(HITBOX_R, Math.min(CW - HITBOX_R, nx));
         ny = Math.max(HITBOX_R, Math.min(CH - HITBOX_R, ny));
 
         if (checkCollision(nx, ny)) {
             triggerFail();
-            return;
+            return true;
         }
-
         px = nx;
         py = ny;
+        return false;
+    }
 
-        // Secret path check
+    function applyMovement(dx, dy) {
+        const dist = Math.hypot(dx, dy);
+        if (dist === 0) return;
+
+        // Anti-tunneling: step physics every 2 pixels max
+        const steps = Math.ceil(dist / 2);
+        const stepDx = dx / steps;
+        const stepDy = dy / steps;
+
+        for(let s = 0; s < steps; s++) {
+            if (processMovementStep(stepDx, stepDy)) break;
+        }
+
+        if (state !== "failed") {
+            // Update Score safely if they moved without colliding
+            score += dist * 0.1;
+            $scoreV.textContent = Math.floor(score);
+            
+            // Buzz warning
+            const isNear = checkProximity(px, py);
+            const container = document.getElementById("game-container");
+            if (isNear) {
+                container.classList.add("buzz-active");
+                setHum(true);
+            } else {
+                container.classList.remove("buzz-active");
+                setHum(false);
+            }
+        }
+
+        // Secret path exploit check
         if (py > MY && py < MY + MAZE_H) {
             if (px < MX - 10 || px > MX + MAZE_W + 10) {
                 hasBeenOnSide = true;
             }
         }
-        
-        // Reset secret path if they go back deep into the maze
         if (isInsideMaze(px, py)) {
             const col = Math.floor((px - MX) / CELL);
             const row = Math.floor((py - MY) / CELL);
@@ -645,25 +754,29 @@
             }
         }
 
-        // Check Win
+        // Check Target
         const distToJerry = Math.hypot(px - EX, py - EY);
-        if (distToJerry < HITBOX_R + DRAW_SCALE*2) {
+        if (distToJerry < HITBOX_R + DRAW_SCALE*2 && state === "playing") {
             if (hasBeenOnSide) {
-                // Real win
-                state = "realwin";
+                // THE FINAL TRAP
+                state = "bsod";
                 document.exitPointerLock();
-                $realWin.classList.add("visible");
+                setHum(false);
+                document.getElementById("game-container").classList.remove("buzz-active");
+                playBSOD();
+                document.getElementById("bsod").classList.add("visible");
             } else {
                 // Fake win
                 state = "fakewin";
                 document.exitPointerLock();
+                setHum(false);
+                document.getElementById("game-container").classList.remove("buzz-active");
                 level++;
                 $fakeWin.classList.add("visible");
                 setTimeout(() => {
                     $fakeWin.classList.remove("visible");
                     $levelV.textContent = level;
                     resetPlayer();
-                    // Don't re-generate maze, keep the same one!
                     canvas.requestPointerLock();
                 }, 2000);
             }
@@ -675,6 +788,11 @@
         py = SY;
         hasBeenOnSide = false;
         state = "playing";
+        timer = 60.0;
+        lastTick = 60;
+        score = 0;
+        $scoreV.textContent = "0";
+        $timeV.textContent = "60";
     }
 
     /* ═══════════════════════════════════════════════
@@ -682,21 +800,39 @@
        ═══════════════════════════════════════════════ */
     let pendingDx = 0;
     let pendingDy = 0;
+    let lastTime = performance.now();
 
     function render() {
         ctx.fillStyle = "#FFFFFF";
         ctx.fillRect(0, 0, CW, CH);
-
         drawMaze();
         drawJerry(EX, EY, DRAW_SCALE * 1.5);
         drawTom(px, py, DRAW_SCALE);
     }
 
-    function loop() {
+    function loop(ts) {
         requestAnimationFrame(loop);
+        const delta = (ts - lastTime) / 1000;
+        lastTime = ts;
+
         if (state === "playing") {
+            // Timer Logic
+            timer -= delta;
+            const currentTick = Math.ceil(timer);
+            if (currentTick !== lastTick && currentTick > 0) {
+                playTick();
+                lastTick = currentTick;
+            }
+            if (timer <= 0) {
+                playAlarm();
+                timer = 60.0;
+                lastTick = 60;
+            }
+            $timeV.textContent = Math.max(0, currentTick);
+
+            // Physics Logic
             if (pendingDx !== 0 || pendingDy !== 0) {
-                movePlayer(pendingDx, pendingDy);
+                applyMovement(pendingDx, pendingDy);
                 pendingDx = 0;
                 pendingDy = 0;
             }
@@ -711,18 +847,17 @@
        ═══════════════════════════════════════════════ */
     document.addEventListener("mousemove", e => {
         if (state !== "playing") return;
-        
         const scale = canvas.clientWidth / canvas.width || 1;
-        // Invert X and Y purely mathematically, buffer it for the physics loop
         pendingDx -= e.movementX / scale;
         pendingDy -= e.movementY / scale;
     });
 
     document.addEventListener("pointerlockchange", () => {
         if (document.pointerLockElement !== canvas && state === "playing") {
-            // Unpaused gracefully by resetting to start, to prevent cheating via pause
             resetPlayer();
             state = "menu";
+            setHum(false);
+            document.getElementById("game-container").classList.remove("buzz-active");
             $start.classList.remove("hidden");
             $hud.classList.remove("visible");
         }
@@ -730,6 +865,7 @@
 
     $startBtn.addEventListener("click", () => {
         ensureAudio();
+        lastTime = performance.now();
         $start.classList.add("hidden");
         $hud.classList.add("visible");
         state = "playing";
