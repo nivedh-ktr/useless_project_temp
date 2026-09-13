@@ -168,6 +168,24 @@
             font-size: 20px;
             color: #333;
         }
+
+        /* ─── SHAKE ANIMATION ─── */
+        @keyframes shake {
+            0% { transform: translate(2px, 2px) rotate(0deg); }
+            10% { transform: translate(-2px, -3px) rotate(-1deg); }
+            20% { transform: translate(-4px, 0px) rotate(1deg); }
+            30% { transform: translate(4px, 3px) rotate(0deg); }
+            40% { transform: translate(2px, -2px) rotate(1deg); }
+            50% { transform: translate(-2px, 3px) rotate(-1deg); }
+            60% { transform: translate(-4px, 2px) rotate(0deg); }
+            70% { transform: translate(4px, 2px) rotate(-1deg); }
+            80% { transform: translate(-2px, -2px) rotate(1deg); }
+            90% { transform: translate(2px, 3px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        .shake-active {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
     </style>
 </head>
 <body>
@@ -246,7 +264,8 @@
     const CH = MAZE_H + MARGIN * 2;
     const MX = MARGIN;
     const MY = MARGIN;
-    const PR = 6;                        // player radius (very small to fit in 20px cell)
+    const HITBOX_R = 2;                  // micro-size collision core
+    const DRAW_SCALE = 6;                // visual scale for Tom
     
     // Grid where each cell has {n, e, s, w} booleans indicating a wall
     let grid = [];
@@ -490,7 +509,7 @@
 
     function checkCollision(x, y) {
         // Player bounding circle
-        const r = PR - 1; // Slight forgiveness
+        const r = HITBOX_R;
 
         // Check Outer Border Walls (except gates)
         // Top Border (left of gate)
@@ -539,6 +558,10 @@
         document.exitPointerLock();
         playThud();
         
+        const container = document.getElementById("game-container");
+        container.classList.add("shake-active");
+        setTimeout(() => container.classList.remove("shake-active"), 400);
+        
         fails++;
         $failsV.textContent = fails;
 
@@ -554,8 +577,8 @@
         let ny = py + dy;
 
         // Keep inside canvas
-        nx = Math.max(PR, Math.min(CW - PR, nx));
-        ny = Math.max(PR, Math.min(CH - PR, ny));
+        nx = Math.max(HITBOX_R, Math.min(CW - HITBOX_R, nx));
+        ny = Math.max(HITBOX_R, Math.min(CH - HITBOX_R, ny));
 
         if (checkCollision(nx, ny)) {
             triggerFail();
@@ -583,7 +606,7 @@
 
         // Check Win
         const distToJerry = Math.hypot(px - EX, py - EY);
-        if (distToJerry < PR + PR*1.5) {
+        if (distToJerry < HITBOX_R + DRAW_SCALE*2) {
             if (hasBeenOnSide) {
                 // Real win
                 state = "realwin";
@@ -621,8 +644,8 @@
         ctx.fillRect(0, 0, CW, CH);
 
         drawMaze();
-        drawJerry(EX, EY, PR*1.5);
-        drawTom(px, py, PR*1.2);
+        drawJerry(EX, EY, DRAW_SCALE * 1.5);
+        drawTom(px, py, DRAW_SCALE);
     }
 
     function loop() {
