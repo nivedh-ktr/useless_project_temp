@@ -96,14 +96,56 @@ graph TD
     Shake --> Modal[Display Malayalam Meme Modal]
     Modal -. "Click Try Again" .-> Init
 ```
+# Impossible Troll Maze Workflow
+
+Here is the architectural workflow diagram of the game, highlighting the procedural generation, physics loop, and trolling mechanics. 
+
+```mermaid
+graph TD
+    Start([Player Clicks Start]) --> Init[Initialize Game State]
+    Init --> MazeGen[Procedural Maze Generation]
+    
+    subgraph Maze Generation Algorithm
+        MazeGen --> DFS[Randomized DFS Path Carving]
+        DFS --> Trap[Identify & Seal Solution Path Midpoint]
+        Trap --> BFS[BFS Component Labeling]
+        BFS --> Loops[Carve Endless Loops & Dead Ends]
+        Loops --> Gates[Open Multiple Decoy Entrances]
+    end
+    
+    Gates --> GameLoop
+    
+    subgraph Physics & Render Loop (60 FPS)
+        GameLoop((requestAnimationFrame))
+        
+        GameLoop --> Timer[Update 60s Anxiety Timer]
+        Timer --> Audio[Synthesize Audio Ticks & Alarms]
+        
+        GameLoop --> Input[Process Inverted Mouse Input]
+        Input --> Collision{Micro-Hitbox Collision}
+        
+        Collision -- "Near Wall (< 3px)" --> Buzz[Trigger Proximity CSS Buzz & Oscillator Hum]
+        Collision -- "Clear" --> Move[Increment Score & Update Position]
+        Collision -- "Hit Wall" --> Fail[Fail State]
+        
+        Move --> WinCheck{Win Condition}
+        WinCheck -- "Reached Target via Secret Margin" --> BSOD[Trigger Fake BSOD System Crash]
+    end
+    
+    Fail --> Shake[Trigger Screen Shake & Thud]
+    Shake --> Modal[Display Malayalam Meme Modal]
+    Modal -. "Click Try Again" .-> Init
+```
+##WorkFlow
+<img width="441" height="987" alt="image" src="https://github.com/user-attachments/assets/430bd4a6-4983-4745-bc92-03d17a4be7ac" />
+
 *Architecture diagram showing the procedural DFS grid generation and component labeling trap.*
 
-### For Hardware:
-* N/A
+
 
 ## Project Demo
 ### Video
-[Add your demo video link here] 
+(https://drive.google.com/file/d/1cbSlg5MoQl0h7J8Znhnbe6WgejFmZNkl/view?usp=drivesdk)
 *This video demonstrates the inverted controls, the proximity vibration effects, the infinite timer loops, and the ultimate BSOD trap.*
 
 ### Additional Demos
