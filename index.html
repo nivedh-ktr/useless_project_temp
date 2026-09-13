@@ -335,10 +335,10 @@
         while(compStack.length > 0) {
             const {r, c} = compStack.pop();
             const g = grid[r][c];
-            if (!g.n && r > 0 && grid[r-1][c].comp !== 'A') { grid[r-1][c].comp = 'A'; compStack.push({r: r-1, c}); }
-            if (!g.s && r < ROWS-1 && grid[r+1][c].comp !== 'A') { grid[r+1][c].comp = 'A'; compStack.push({r: r+1, c}); }
-            if (!g.w && c > 0 && grid[r][c-1].comp !== 'A') { grid[r][c-1].comp = 'A'; compStack.push({r: r, c-1}); }
-            if (!g.e && c < COLS-1 && grid[r][c+1].comp !== 'A') { grid[r][c+1].comp = 'A'; compStack.push({r: r, c+1}); }
+            if (!g.n && r > 0 && grid[r-1][c].comp !== 'A') { grid[r-1][c].comp = 'A'; compStack.push({r: r-1, c: c}); }
+            if (!g.s && r < ROWS-1 && grid[r+1][c].comp !== 'A') { grid[r+1][c].comp = 'A'; compStack.push({r: r+1, c: c}); }
+            if (!g.w && c > 0 && grid[r][c-1].comp !== 'A') { grid[r][c-1].comp = 'A'; compStack.push({r: r, c: c-1}); }
+            if (!g.e && c < COLS-1 && grid[r][c+1].comp !== 'A') { grid[r][c+1].comp = 'A'; compStack.push({r: r, c: c+1}); }
         }
         
         // Label all non-A as B
