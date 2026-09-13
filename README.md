@@ -1,101 +1,78 @@
-<img width="1280" height="640" alt="git (1)" src="https://github.com/user-attachments/assets/8920b256-2ba8-4988-b824-5351134eb4bd" />
-
-
-
-# [Project Name] 🎯
-
+# Impossible Troll Maze 🎯
 
 ## Basic Details
-### Team Name: REVENANT
-
+* **Team Name:** REVENANT
 
 ### Team Members
-- Team Lead: NIVEDHKRISHNA T R - CUSAT
-- Member 2: NAFIL P K - CUSAT
+* **Team Lead:** NIVEDHKRISHNA T R - CUSAT
+* **Member 2:** NAFIL P K - CUSAT
 
-### Project Description
-[2-3 lines about what your project does]
+## Project Description
+A procedurally generated, infinitely looping, and intentionally impossible 2D maze game designed solely to induce maximum anxiety and troll the player with unfair mechanics, inverted controls, and fake-out systems. 
 
-### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+## The Problem (that doesn't exist)
+Gamers have gotten too comfortable. They expect fair mechanics, clear winning conditions, and responsive controls. The world was suffering from a severe lack of unadulterated frustration and pure, unfiltered rage-quitting.
 
-### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+## The Solution (that nobody asked for)
+We built a maze game where the mouse input is perfectly inverted, the collision boundaries are microscopic yet unforgiving, the timer is an anxiety-inducing loop that never ends, and the only possible "winning" condition actually triggers a fake Blue Screen of Death. It's a masterclass in psychological torment.
 
 ## Technical Details
+
 ### Technologies/Components Used
-For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+#### For Software:
+* **Languages used:** HTML5, CSS3, JavaScript
+* **Frameworks used:** Vanilla JS (HTML5 Canvas API)
+* **Libraries used:** Web Audio API (Native browser audio synthesis)
+* **Tools used:** Git, GitHub
 
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
+#### For Hardware:
+* N/A - This is a purely software-based web application.
 
-### Implementation
-For Software:
-# Installation
-[commands]
+## Implementation
+#### For Software:
 
-# Run
-[commands]
+**Installation**
+```bash
+git clone https://github.com/nivedh-ktr/useless_project_temp.git
+cd useless_project_temp
+```
 
-### Project Documentation
-For Software:
+**Run**
+```bash
+# Simply open the index.html file in any modern web browser.
+# Example for Windows:
+start index.html
+```
 
-# Screenshots (Add at least 3)
-![Screenshot1](Add screenshot 1 here with proper name)
-*Add caption explaining what this shows*
+## Project Documentation
+### For Software:
 
-![Screenshot2](Add screenshot 2 here with proper name)
-*Add caption explaining what this shows*
+**Screenshots**
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
+![Screenshot1](docs/start_screen.png) 
+*The welcoming Start Screen masking the impending doom.*
 
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
+![Screenshot2](docs/gameplay.png) 
+*Navigating the impossibly thin walls with an inverted cursor.*
 
-For Hardware:
+![Screenshot3](docs/bsod.png) 
+*The fake Windows BSOD that triggers when the player tries to cheat the maze.*
 
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
+**Diagrams**
+![Workflow](docs/workflow.png) 
+*Architecture diagram showing the procedural DFS grid generation and component labeling trap.*
 
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
+### For Hardware:
+* N/A
 
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
+## Project Demo
+### Video
+[Add your demo video link here] 
+*This video demonstrates the inverted controls, the proximity vibration effects, the infinite timer loops, and the ultimate BSOD trap.*
 
-![Build](Add photos of build process here)
-*Explain the build steps*
-
-![Final](Add photo of final product here)
-*Explain the final build*
-
-### Project Demo
-# Video
-[Add your demo video link here]
-*Explain what the video demonstrates*
-
-# Additional Demos
-[Add any extra demo materials/links]
+### Additional Demos
+* [Live Web Demo Link (If deployed) - TBD]
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-
----
-Made with ❤️ at TinkerHub Useless Projects 
-
-![Static Badge](https://img.shields.io/badge/TinkerHub-24?color=%23000000&link=https%3A%2F%2Fwww.tinkerhub.org%2F)
-![Static Badge](https://img.shields.io/badge/UselessProjects--26-26?link=https%3A%2F%2Ftinkerhub.org%2Fevents%2F1M8ORET9A1%2Fuseless-projects-3.0)
-
-
-
+* **NIVEDHKRISHNA T R:** Core procedural maze generation algorithm, inverted mouse physics engine, and fake BSOD state trap implementation.
+* **NAFIL P K:** UI/HUD integration, Web Audio synthesis logic, proximity vibration effects, and Malayalam meme translation.
